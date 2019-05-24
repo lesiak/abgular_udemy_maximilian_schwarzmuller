@@ -5,11 +5,21 @@
   <li>Upon clicking the button, the username should be reset to an empty string</li>
 </ol>
 <hr/>
-<div class="container-fluid">
-  <label for="userNameInput">User Name</label>
-  <input id="userNameInput" [(ngModel)]="username" placeholder="User Name">
-  <p>You entered: {{ username }}</p>
-  <button class="btn btn-primary"
-          [disabled]="!username"
-          (click)="onResetName()">Reset Name</button>
+<div class="container">
+  <div class="row">
+    <div class="col-sm">
+      <label for="userNameInput">User Name: </label>
+      <input id="userNameInput"
+             placeholder="User Name"
+             type="text"
+             class="form-control"
+             [(ngModel)]="username" >
+      <br>
+      <p>You entered: {{ username }}</p>
+      <button class="btn btn-primary"
+              [disabled]="!username"
+              (click)="onResetName()">Reset Name
+      </button>
+    </div>
+  </div>
 </div>
