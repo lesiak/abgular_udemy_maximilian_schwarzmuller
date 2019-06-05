@@ -1,4 +1,4 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Component, ElementRef, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
 
 @Component({
   selector: 'app-cockpit',
@@ -8,7 +8,8 @@ import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 export class CockpitComponent implements OnInit {
   @Output() serverCreated = new EventEmitter<{ serverName: string, serverContent: string }>();
   @Output() blueprintCreated = new EventEmitter<{ serverName: string, serverContent: string }>();
-  newServerContent = '';
+  // Angular8: resolve query results before change detection runs
+  @ViewChild('serverContentInput', {static: false}) serverContentInput: ElementRef;
 
   constructor() {
   }
@@ -17,11 +18,11 @@ export class CockpitComponent implements OnInit {
   }
 
   onAddServer(newServerName: string) {
-    this.serverCreated.emit({serverName: newServerName, serverContent: this.newServerContent});
+    this.serverCreated.emit({serverName: newServerName, serverContent: this.serverContentInput.nativeElement.value});
   }
 
   onAddBlueprint(newServerName: string) {
-    this.blueprintCreated.emit({serverName: newServerName, serverContent: this.newServerContent});
+    this.blueprintCreated.emit({serverName: newServerName, serverContent: this.serverContentInput.nativeElement.value});
   }
 
 }
