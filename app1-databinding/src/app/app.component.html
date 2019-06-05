@@ -5,7 +5,9 @@
   <div class="row">
     <div class="col-xs-12">
       <app-server-element *ngFor="let serverElement of serverElements"
-                          [srvElement]="serverElement"></app-server-element>
+                          [srvElement]="serverElement">
+          <p>Parent provided header for {{ serverElement.name }}</p>
+      </app-server-element>
     </div>
   </div>
 </div>
