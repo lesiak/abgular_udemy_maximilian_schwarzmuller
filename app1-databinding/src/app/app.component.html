@@ -4,9 +4,15 @@
   <hr>
   <div class="row">
     <div class="col-xs-12">
+      <button class="btn btn-primary" (click)="onChangeFirst()">Trigger Changes in first</button>
+      <button class="btn btn-danger" (click)="onDestroyFirst()">Destroy first</button>
       <app-server-element *ngFor="let serverElement of serverElements"
-                          [srvElement]="serverElement">
-          <p>Parent provided header for {{ serverElement.name }}</p>
+                          [name]="serverElement.name">
+        <p>Parent provided header for {{ serverElement.name }}</p>
+        <p>
+          <strong *ngIf="serverElement.type === 'server'" style="color: red">{{ serverElement.content }}</strong>
+          <em *ngIf="serverElement.type === 'blueprint'">{{ serverElement.content }}</em>
+        </p>
       </app-server-element>
     </div>
   </div>
