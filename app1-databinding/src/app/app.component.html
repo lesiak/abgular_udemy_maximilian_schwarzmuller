@@ -9,7 +9,7 @@
       <app-server-element *ngFor="let serverElement of serverElements"
                           [name]="serverElement.name">
         <p>Parent provided header for {{ serverElement.name }}</p>
-        <p>
+        <p #contentParagraph>
           <strong *ngIf="serverElement.type === 'server'" style="color: red">{{ serverElement.content }}</strong>
           <em *ngIf="serverElement.type === 'blueprint'">{{ serverElement.content }}</em>
         </p>
