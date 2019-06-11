@@ -1,6 +1,6 @@
 <div class="container">
   <div class="row">
-    <div class="col-xs-12">
+    <div class="col-sm-12">
       <h3>Bind it!</h3>
       <ol>
         <li>Create three new components: GameControl, Odd and Even</li>
@@ -12,6 +12,18 @@
         <li>Simply output Odd - NUMBER or Even - NUMBER in the two components</li>
         <li>Style the element (e.g. paragraph) holding your output text differently in both components</li>
       </ol>
+    </div>
+  </div>
+  <hr/>
+  <div class="row">
+    <div class="col-sm-12">
+      <app-game-control (timerTicked)="onTimerTicked($event)"></app-game-control>
+      <div>
+        <div *ngFor="let tick of timerTicks">
+          <app-even [tick]="tick" *ngIf="tick % 2 == 0"></app-even>
+          <app-odd [tick]="tick" *ngIf="tick % 2 == 1"></app-odd>
+        </div>
+      </div>
     </div>
   </div>
 </div>

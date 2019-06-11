@@ -6,4 +6,9 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
+  timerTicks: number[]  = [];
+
+  onTimerTicked(event: {timerValue: number}) {
+    this.timerTicks.push(event.timerValue);
+  }
 }
