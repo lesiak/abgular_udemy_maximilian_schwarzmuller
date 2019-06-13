@@ -10,9 +10,11 @@
           class="list-group-item">{{ number }}
         </li>
       </ul>
+      <p *ngIf="onlyOdd">Only odd with *ngIf</p>
       <ng-template [ngIf]="onlyOdd">
-        <p>Only odd</p>
+        <p>Only odd with ng-template</p>
       </ng-template>
+      <p *appUnless="!onlyOdd">Only odd with custom structural directive</p>
     </div>
   </div>
   <div class="row">
