@@ -11,9 +11,13 @@ export class NewAccountComponent {
 
   constructor(private accountsService: AccountsService,
               private loggingService: LoggingService) {
+    this.accountsService.statusUpdated.subscribe(
+      (status: string) => console.log(`Received status update from another component: ${status}`)
+    );
   }
 
   onCreateAccount(accountName: string, accountStatus: string) {
     this.accountsService.addAccount(accountName, accountStatus);
   }
+
 }
