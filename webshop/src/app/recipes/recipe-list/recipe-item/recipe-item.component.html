@@ -1,13 +1,14 @@
 <a [routerLink]="[index]"
    style="cursor: pointer;"
    class="list-group-item list-group-item-action flex-column align-items-start">
-  <div class="d-flex w-100 justify-content-between">
-    <h5 class="mb-1">{{recipe.name}}</h5>
-  </div>
-  <div class="d-flex">
-    <p class="w-75">{{ recipe.description }}</p>
+  <div class="d-flex justify-content-between">
+    <div class="w-75">
+      <h5 class="mb-1">{{recipe.name}}</h5>
+      <p>{{ recipe.description }}</p>
+    </div>
     <div class="w-25">
       <img class="img-fluid" [src]="recipe.imagePath"/>
     </div>
   </div>
+
 </a>
