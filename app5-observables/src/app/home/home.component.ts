@@ -10,7 +10,8 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   private firstObsSubscription: Subscription;
 
-  constructor() { }
+  constructor() {
+  }
 
   ngOnInit() {
     // this.firstObsSubscription = interval(1000).subscribe(count => {
@@ -20,12 +21,25 @@ export class HomeComponent implements OnInit, OnDestroy {
       let count = 0;
       setInterval(() => {
         observer.next(count++);
+        if (count === 2) {
+          observer.complete();
+        }
+        if (count > 3) {
+          observer.error(new Error('count is greater than 3!'));
+        }
       }, 1000);
     });
 
-    this.firstObsSubscription = customIntervalObservable.subscribe(count => {
-      console.log(count);
-    });
+    this.firstObsSubscription = customIntervalObservable.subscribe(
+      count => {
+        console.log(count);
+      },
+      error => {
+        console.log(error);
+      },
+      () => {
+        console.log('Completed!')
+      });
   }
 
   ngOnDestroy(): void {
