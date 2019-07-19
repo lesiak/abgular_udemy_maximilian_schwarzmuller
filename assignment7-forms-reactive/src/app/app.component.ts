@@ -1,5 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {FormControl, FormGroup, ValidationErrors, Validators} from '@angular/forms';
+import {Observable} from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -13,7 +14,7 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     this.projectForm = new FormGroup({
       // control names are passed as strings to prevent potential name mangling during minification
-      'projectName': new FormControl(null, [Validators.required, this.makeForbiddenValuesValidator(['Test'])]),
+      'projectName': new FormControl(null, Validators.required, this.makeForbiddenValuesAsyncValidator(['Test'])),
       'email': new FormControl(null, [Validators.required, Validators.email]),
       'status': new FormControl(null)
     });
@@ -32,5 +33,22 @@ export class AppComponent implements OnInit {
       }
     };
     return forbiddenValuesValidator;
+  }
+
+  makeForbiddenValuesAsyncValidator(disallowedValues: string[]):
+    (control: FormControl) => (Promise<ValidationErrors | null> | Observable<ValidationErrors | null>) {
+    const forbiddenValuesAsyncValidator = function (control: FormControl):
+      Promise<ValidationErrors | null> | Observable<ValidationErrors | null> {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          if (disallowedValues.includes(control.value)) {
+            resolve({'valueIsForbidden': true});
+          } else {
+            resolve(null);
+          }
+        }, 2000);
+      });
+    };
+    return forbiddenValuesAsyncValidator;
   }
 }
