@@ -12,7 +12,10 @@
               formControlName="username"
               class="form-control">
             <span *ngIf="signUpForm.get('userData.username').invalid && signUpForm.get('userData.username').touched"
-                  class="help-block">Please enter a valid Username</span>
+                  class="help-block">
+              <span *ngIf="signUpForm.get('userData.username').errors['nameIsForbidden']">Please enter a valid Username</span>
+              <span *ngIf="signUpForm.get('userData.username').errors['required']">Username is required</span>
+            </span>
           </div>
           <div class="form-group">
             <label for="email">Email</label>
