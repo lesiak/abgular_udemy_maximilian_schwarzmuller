@@ -14,7 +14,7 @@ export class AppComponent implements OnInit {
     this.projectForm = new FormGroup({
       // control names are passed as strings to prevent potential name mangling during minification
       'projectName': new FormControl(null, Validators.required),
-      'email': new FormControl(null, Validators.required),
+      'email': new FormControl(null, [Validators.required, Validators.email]),
       'status': new FormControl(null)
     });
   }
