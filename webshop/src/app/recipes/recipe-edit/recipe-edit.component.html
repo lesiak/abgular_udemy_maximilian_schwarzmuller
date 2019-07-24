@@ -25,13 +25,14 @@
             <input id="imagePath"
                    type="text"
                    formControlName="imagePath"
-                   class="form-control">
+                   class="form-control"
+                   #imagePath>
           </div>
         </div>
       </div>
       <div class="row">
         <div class="col-sm-12">
-          <img src="" class="img-fluid">
+          <img [src]="imagePath.value" class="img-fluid">
         </div>
       </div>
       <div class="row">
