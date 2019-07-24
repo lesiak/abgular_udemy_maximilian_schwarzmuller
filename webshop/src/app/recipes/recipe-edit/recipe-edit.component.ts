@@ -40,7 +40,7 @@ export class RecipeEditComponent implements OnInit {
       recipeImagePath = recipe.imagePath;
       recipeDescription = recipe.description;
       if (recipe.ingredients) {
-        for (let ingredient of recipe.ingredients) {
+        for (const ingredient of recipe.ingredients) {
           recipeIngredients.push(new FormGroup({
             'name': new FormControl(ingredient.name),
             'amount': new FormControl(ingredient.amount)
@@ -60,7 +60,19 @@ export class RecipeEditComponent implements OnInit {
     console.log(this.recipeForm);
   }
 
-  get ingredientControls() {
-    return (this.recipeForm.get('ingredients') as FormArray).controls;
+  onAddIngredient() {
+    this.ingredientsFormArray.push(new FormGroup({
+      'name': new FormControl(),
+      'amount': new FormControl()
+    }));
   }
+
+  get ingredientsFormArray(): FormArray {
+    return this.recipeForm.get('ingredients') as FormArray;
+  }
+
+  get ingredientControls() {
+    return this.ingredientsFormArray.controls;
+  }
+
 }
