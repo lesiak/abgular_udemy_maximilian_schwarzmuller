@@ -1,5 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
+import {map} from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -36,6 +37,7 @@ export class AppComponent implements OnInit {
 
   private fetchPosts() {
     this.http.get('https://angular-udemy-93cb1.firebaseio.com/posts.json')
+      .pipe(map(responseData => Object.entries(responseData).map(e => ({id: e[0], ...e[1]}))))
       .subscribe(posts => console.log(posts));
   }
 }
