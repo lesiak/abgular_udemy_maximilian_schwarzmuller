@@ -70,6 +70,10 @@ export class RecipeEditComponent implements OnInit {
     }));
   }
 
+  onDeleteIngredient(index: number) {
+    this.ingredientsFormArray.removeAt(index);
+  }
+
   onSubmit() {
     const newRecipe = this.recipeForm.value;
     console.log(newRecipe);

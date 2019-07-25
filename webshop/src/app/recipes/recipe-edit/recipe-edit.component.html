@@ -63,7 +63,9 @@
                      class="form-control">
             </div>
             <div class="col-sm-w">
-              <button class="btn btn-danger">X</button>
+              <button type="button"
+                      (click)="onDeleteIngredient(i)"
+                      class="btn btn-danger">X</button>
             </div>
           </div>
           <hr />
