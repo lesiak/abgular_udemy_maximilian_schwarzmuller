@@ -37,4 +37,8 @@ export class PostsService {
       .pipe(map(PostsService.responseDataToPosts));
   }
 
+  deleteAllPosts() {
+    return this.http.delete(this.POSTS_URL);
+  }
+
 }
