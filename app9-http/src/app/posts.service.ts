@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
 import {Observable, Subject, throwError} from 'rxjs';
 import {catchError, map} from 'rxjs/operators';
 import {Post, PostData} from './post.model';
@@ -40,9 +40,8 @@ export class PostsService {
     return this.http.get<{ [key: string]: PostData }>(
       this.POSTS_URL,
       {
-        headers: new HttpHeaders({
-          'Custom-Header': 'Hello'
-        })
+        headers: new HttpHeaders({'Custom-Header': 'Hello'}),
+        params: new HttpParams().set('print', 'pretty')
       })
       .pipe(
         map(PostsService.responseDataToPosts),
