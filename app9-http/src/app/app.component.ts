@@ -10,6 +10,7 @@ import {Post, PostData} from './post.model';
 })
 export class AppComponent implements OnInit {
   loadedPosts: Post[] = [];
+  isFetching = false;
 
   constructor(private http: HttpClient) {
   }
@@ -21,7 +22,7 @@ export class AppComponent implements OnInit {
   onCreatePost(postData: PostData) {
     // Send Http request
     this.http
-      .post<{name: string}>('https://angular-udemy-93cb1.firebaseio.com/posts.json', postData)
+      .post<{ name: string }>('https://angular-udemy-93cb1.firebaseio.com/posts.json', postData)
       .subscribe(responseData => {
         console.log(responseData);
       });
@@ -37,8 +38,12 @@ export class AppComponent implements OnInit {
   }
 
   private fetchPosts() {
-    this.http.get<{[key: string]: PostData}>('https://angular-udemy-93cb1.firebaseio.com/posts.json')
+    this.isFetching = true;
+    this.http.get<{ [key: string]: PostData }>('https://angular-udemy-93cb1.firebaseio.com/posts.json')
       .pipe(map(responseData => Object.entries(responseData).map(e => ({id: e[0], ...e[1]}))))
-      .subscribe(posts => this.loadedPosts = posts);
+      .subscribe(posts => {
+        this.isFetching = false;
+        this.loadedPosts = posts;
+      });
   }
 }
