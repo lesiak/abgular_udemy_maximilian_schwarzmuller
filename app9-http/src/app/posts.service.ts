@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {Observable} from 'rxjs';
+import {Observable, Subject} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {Post, PostData} from './post.model';
 
@@ -8,6 +8,8 @@ import {Post, PostData} from './post.model';
 export class PostsService {
 
   private POSTS_URL = 'https://angular-udemy-93cb1.firebaseio.com/posts.json';
+
+  error = new Subject<string>();
 
   static responseDataToPosts(responseData: { [key: string]: PostData }): Post[] {
     if (!responseData) {
@@ -29,6 +31,8 @@ export class PostsService {
       .post<{ name: string }>(this.POSTS_URL, postData)
       .subscribe(responseData => {
         console.log(responseData);
+      }, error => {
+        this.error.next(error.message);
       });
   }
 
