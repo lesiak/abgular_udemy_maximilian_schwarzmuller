@@ -2,6 +2,7 @@ import {HttpClient} from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import {RecipeService} from '../recipes/recipe.service';
 import {Recipe} from '../recipes/recipe.model';
+import {map} from 'rxjs/operators';
 
 @Injectable({providedIn: 'root'})
 export class DataStorageService {
@@ -16,6 +17,9 @@ export class DataStorageService {
 
   fetchData() {
     this.http.get<Recipe[]>('https://angular-udemy-webshop.firebaseio.com/recipes.json')
+      .pipe(map(recipes => recipes.map(recipe => {
+        return {...recipe, ingredients: recipe.ingredients ? recipe.ingredients : []};
+      })))
       .subscribe(response => this.recipeService.setRecipes(response));
   }
 }
