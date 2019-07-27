@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
-import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
+import {HttpClient, HttpEventType, HttpHeaders, HttpParams} from '@angular/common/http';
 import {Observable, Subject, throwError} from 'rxjs';
-import {catchError, map} from 'rxjs/operators';
+import {catchError, map, tap} from 'rxjs/operators';
 import {Post, PostData} from './post.model';
 
 @Injectable({providedIn: 'root'})
@@ -28,7 +28,7 @@ export class PostsService {
   savePost(postData: PostData) {
     // Send Http request
     this.http
-      .post<{ name: string }>(this.POSTS_URL, postData)
+      .post<{ name: string }>(this.POSTS_URL, postData, {observe: 'response'})
       .subscribe(responseData => {
         console.log(responseData);
       }, error => {
@@ -53,7 +53,13 @@ export class PostsService {
   }
 
   deleteAllPosts() {
-    return this.http.delete(this.POSTS_URL);
+    return this.http.delete(this.POSTS_URL, {observe: 'events'})
+      .pipe(tap(event => {
+        console.log(event);
+        if (event.type === HttpEventType.Sent) {
+          console.log('Request sent');
+        }
+      }));
   }
 
 }
