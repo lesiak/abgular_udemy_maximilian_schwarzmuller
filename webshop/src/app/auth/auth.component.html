@@ -1,20 +1,36 @@
 <div class="row">
   <div class="col-sm-12 col-md-6 offset-md-3">
-    <form>
+    <form #authForm="ngForm" (ngSubmit)="onSubmit(authForm)">
       <div class="form-group">
         <label for="email">Email</label>
-        <input type="email" id="email" class="form-control">
+        <input type="email"
+               id="email"
+               class="form-control"
+               ngModel
+               name="email"
+               required
+               email>
       </div>
       <div class="form-group">
         <label for="password">Password</label>
-        <input type="password" id="password" class="form-control">
+        <input type="password"
+               id="password"
+               class="form-control"
+               ngModel
+               name="password"
+               required
+               minlength="6">
       </div>
       <div>
-        <button type="submit" class="btn btn-primary">
+        <button type="submit"
+                class="btn btn-primary"
+                [disabled]="authForm.invalid">
           {{ mode === AuthComponentModes.Login ? 'Login' : 'Sign Up'}}
         </button>
         |
-        <button type="button" class="btn btn-primary" (click)="onSwitchMode()">
+        <button type="button"
+                class="btn btn-primary"
+                (click)="onSwitchMode()">
           Switch to {{ mode === AuthComponentModes.SignUp ? 'Login' : 'Sign Up'}}
         </button>
       </div>
