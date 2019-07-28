@@ -3,9 +3,10 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "test": "ng test",
+    "config": "ts-node set-env.ts",
+    "start": "npm run config && ng serve",
+    "build": "npm run config && ng build",
+    "test": "npm run config && ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"
   },
@@ -24,7 +25,9 @@
     "core-js": "^2.5.4",
     "rxjs": "~6.5.2",
     "tslib": "^1.9.0",
-    "zone.js": "~0.9.1"
+    "zone.js": "~0.9.1",
+    "colors": "^1.1.2",
+    "dotenv": "^5.0.0"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.800.0",
