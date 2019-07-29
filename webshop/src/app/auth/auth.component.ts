@@ -11,6 +11,7 @@ export class AuthComponent implements OnInit {
   private AuthComponentModes = AuthComponentMode;
   private mode = AuthComponentMode.Login;
   private isLoading = false;
+  private errorMessage: string;
 
   constructor(private authService: AuthService) {
   }
@@ -44,8 +45,9 @@ export class AuthComponent implements OnInit {
           console.log(respData);
           this.isLoading = false;
         },
-        error => {
-          console.log(error);
+        errorMessage => {
+          console.log(errorMessage);
+          this.errorMessage = errorMessage;
           this.isLoading = false;
         });
   }
