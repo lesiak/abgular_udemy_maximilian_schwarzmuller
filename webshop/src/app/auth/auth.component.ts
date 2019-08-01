@@ -15,7 +15,6 @@ export class AuthComponent implements OnDestroy {
   private AuthComponentModes = AuthComponentMode;
   private mode = AuthComponentMode.Login;
   private isLoading = false;
-  private errorMessage: string;
   @ViewChild(PlaceholderDirective, {static: false}) alertHost: PlaceholderDirective;
   private closeSub: Subscription;
 
@@ -37,7 +36,6 @@ export class AuthComponent implements OnDestroy {
     const email = form.value.email;
     const password = form.value.password;
     this.isLoading = true;
-    this.errorMessage = null;
     const authObs: Observable<SignUpResponseData | SignInResponseData> = (this.mode === AuthComponentMode.SignUp)
       ? this.authService.signUp(email, password)
       : this.authService.signIn(email, password);
@@ -49,7 +47,6 @@ export class AuthComponent implements OnDestroy {
       },
       errorMessage => {
         console.log(errorMessage);
-        this.errorMessage = errorMessage;
         this.showErrorAlert(errorMessage);
         this.isLoading = false;
       });
@@ -68,10 +65,6 @@ export class AuthComponent implements OnDestroy {
         hostViewContainerRef.clear();
       }
     );
-  }
-
-  onHandleError() {
-    this.errorMessage = null;
   }
 
   ngOnDestroy(): void {
