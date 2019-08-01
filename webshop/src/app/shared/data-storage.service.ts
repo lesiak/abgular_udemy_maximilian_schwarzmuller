@@ -14,8 +14,7 @@ export class DataStorageService {
   private recipesUrl = environment.webshopBaseUrl + 'recipes.json';
 
   constructor(private http: HttpClient,
-              private recipeService: RecipeService,
-              private authService: AuthService) {
+              private recipeService: RecipeService) {
   }
 
   storeData() {
@@ -25,22 +24,14 @@ export class DataStorageService {
   }
 
   fetchData(): Observable<Recipe[]> {
-    return this.authService.user.pipe(
-      take(1),
-      exhaustMap(user => {
-        return this.http.get<Recipe[]>(
-          this.recipesUrl,
-          {
-            params: new HttpParams().set('auth', user.token)
-          }
-        );
-      }),
-      map(recipes => recipes.map(recipe => {
-        return {...recipe, ingredients: recipe.ingredients ? recipe.ingredients : []};
-      })),
-      tap(recipes => {
-        this.recipeService.setRecipes(recipes);
-      })
-    );
+    return this.http.get<Recipe[]>(this.recipesUrl)
+      .pipe(
+        map(recipes => recipes.map(recipe => {
+          return {...recipe, ingredients: recipe.ingredients ? recipe.ingredients : []};
+        })),
+        tap(recipes => {
+          this.recipeService.setRecipes(recipes);
+        })
+      );
   }
 }
