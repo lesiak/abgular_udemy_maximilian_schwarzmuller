@@ -1,8 +1,9 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpErrorResponse} from '@angular/common/http';
-import {Observable, throwError} from 'rxjs';
+import {Observable, Subject, throwError} from 'rxjs';
 import {environment} from '../../environments/environment';
-import {catchError} from 'rxjs/operators';
+import {catchError, tap} from 'rxjs/operators';
+import {User} from './user.model';
 
 export interface SignUpResponseData {
   idToken: string;
@@ -26,6 +27,7 @@ export class AuthService {
 
   private signUpUrl = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${environment.apiKey}`;
   private signInUrl = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${environment.apiKey}`;
+  user = new Subject<User>();
 
   constructor(private http: HttpClient) {
   }
@@ -38,7 +40,10 @@ export class AuthService {
         password,
         returnSecureToken: true
       })
-      .pipe(catchError(this.handleError));
+      .pipe(
+        catchError(this.handleError),
+        tap(respData => this.handleAuthentication(respData))
+      );
   }
 
   signIn(email: string, password: string): Observable<SignInResponseData> {
@@ -49,7 +54,21 @@ export class AuthService {
         password,
         returnSecureToken: true
       })
-      .pipe(catchError(this.handleError));
+      .pipe(
+        catchError(this.handleError),
+        tap(respData => this.handleAuthentication(respData))
+      );
+  }
+
+  private handleAuthentication(respData: SignUpResponseData | SignInResponseData) {
+    const expirationDate = new Date(new Date().getTime() + parseInt(respData.expiresIn, 10) * 1000);
+    const user = new User(
+      respData.email,
+      respData.localId,
+      respData.idToken,
+      expirationDate
+    );
+    this.user.next(user);
   }
 
   private handleError(errorResp: HttpErrorResponse): Observable<never> {
