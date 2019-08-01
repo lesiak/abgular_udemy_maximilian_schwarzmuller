@@ -4,6 +4,7 @@ import {BehaviorSubject, Observable, throwError} from 'rxjs';
 import {environment} from '../../environments/environment';
 import {catchError, tap} from 'rxjs/operators';
 import {User} from './user.model';
+import {Router} from '@angular/router';
 
 export interface SignUpResponseData {
   idToken: string;
@@ -29,7 +30,8 @@ export class AuthService {
   private signInUrl = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${environment.apiKey}`;
   user = new BehaviorSubject<User>(null);
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient,
+              private router: Router) {
   }
 
   signUp(email: string, password: string): Observable<SignUpResponseData> {
@@ -58,6 +60,11 @@ export class AuthService {
         catchError(this.handleError),
         tap(respData => this.handleAuthentication(respData))
       );
+  }
+
+  signOut() {
+    this.user.next(null);
+    this.router.navigate(['/auth']);
   }
 
   private handleAuthentication(respData: SignUpResponseData | SignInResponseData) {
