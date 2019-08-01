@@ -33,6 +33,7 @@ export class AuthComponent implements OnInit {
     const email = form.value.email;
     const password = form.value.password;
     this.isLoading = true;
+    this.errorMessage = null;
     const authObs: Observable<SignUpResponseData | SignInResponseData> = (this.mode === AuthComponentMode.SignUp)
       ? this.authService.signUp(email, password)
       : this.authService.signIn(email, password);
