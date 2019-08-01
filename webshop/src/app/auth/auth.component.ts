@@ -1,7 +1,7 @@
-import {Component, ComponentFactoryResolver, OnInit, ViewChild} from '@angular/core';
+import {Component, ComponentFactoryResolver, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {NgForm} from '@angular/forms';
 import {AuthService, SignInResponseData, SignUpResponseData} from './auth.service';
-import {Observable} from 'rxjs';
+import {Observable, Subscription} from 'rxjs';
 import {Router} from '@angular/router';
 import {AlertComponent} from '../shared/alert/alert.component';
 import {PlaceholderDirective} from '../shared/placeholder/placeholder.directive';
@@ -11,19 +11,17 @@ import {PlaceholderDirective} from '../shared/placeholder/placeholder.directive'
   templateUrl: './auth.component.html',
   styleUrls: ['./auth.component.css']
 })
-export class AuthComponent implements OnInit {
+export class AuthComponent implements OnDestroy {
   private AuthComponentModes = AuthComponentMode;
   private mode = AuthComponentMode.Login;
   private isLoading = false;
   private errorMessage: string;
   @ViewChild(PlaceholderDirective, {static: false}) alertHost: PlaceholderDirective;
+  private closeSub: Subscription;
 
   constructor(private authService: AuthService,
               private router: Router,
               private componentFactoryResolver: ComponentFactoryResolver) {
-  }
-
-  ngOnInit() {
   }
 
   onSwitchMode() {
@@ -62,12 +60,26 @@ export class AuthComponent implements OnInit {
     const alertComponentFactory = this.componentFactoryResolver.resolveComponentFactory(AlertComponent);
     const hostViewContainerRef = this.alertHost.viewContainerRef;
     hostViewContainerRef.clear();
-    hostViewContainerRef.createComponent(alertComponentFactory);
+    const alertComponentRef = hostViewContainerRef.createComponent(alertComponentFactory);
+    alertComponentRef.instance.message = message;
+    this.closeSub = alertComponentRef.instance.close.subscribe(
+      () => {
+        this.closeSub.unsubscribe();
+        hostViewContainerRef.clear();
+      }
+    );
   }
 
   onHandleError() {
     this.errorMessage = null;
   }
+
+  ngOnDestroy(): void {
+    if (this.closeSub) {
+      this.closeSub.unsubscribe();
+    }
+  }
+
 }
 
 enum AuthComponentMode {
