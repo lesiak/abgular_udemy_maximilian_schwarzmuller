@@ -52,6 +52,10 @@ export class AuthComponent implements OnInit {
       });
     form.reset();
   }
+
+  onHandleError() {
+    this.errorMessage = null;
+  }
 }
 
 enum AuthComponentMode {

@@ -1,7 +1,7 @@
 <div class="row">
   <div class="col-sm-12 col-md-6 offset-md-3">
     <!-- <div class="alert alert-danger" *ngIf="errorMessage">{{ errorMessage }}</div> -->
-    <app-alert [message]="errorMessage" *ngIf="errorMessage"></app-alert>
+    <app-alert [message]="errorMessage" (close)="onHandleError()" *ngIf="errorMessage"></app-alert>
     <div style="text-align: center;" *ngIf="isLoading">
       <app-loading-spinner></app-loading-spinner>
     </div>
