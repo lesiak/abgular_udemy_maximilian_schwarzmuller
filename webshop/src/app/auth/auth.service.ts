@@ -29,6 +29,7 @@ export class AuthService {
   private signUpUrl = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${environment.apiKey}`;
   private signInUrl = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${environment.apiKey}`;
   user = new BehaviorSubject<User>(null);
+  private tokenExpirationTimer: number;
 
   constructor(private http: HttpClient,
               private router: Router) {
@@ -72,33 +73,49 @@ export class AuthService {
     if (!userData) {
       return;
     }
+    const expirationDate = new Date(userData._tokenExpirationDate);
     const loadedUser = new User(
       userData.email,
       userData.id,
       userData._token,
-      new Date(userData._tokenExpirationDate)
+      expirationDate
     );
 
     if (loadedUser.token) {
       this.user.next(loadedUser);
+      const expiresInMillis = new Date(expirationDate).getTime() - new Date().getTime();
+      this.autoSignOut(expiresInMillis);
     }
   }
 
   signOut() {
     this.user.next(null);
     this.router.navigate(['/auth']);
+    localStorage.removeItem('userData');
+    if (this.tokenExpirationTimer) {
+      clearTimeout(this.tokenExpirationTimer);
+      this.tokenExpirationTimer = null;
+    }
+  }
+
+  autoSignOut(expirationDurationMillis: number) {
+    this.tokenExpirationTimer = setTimeout(() => {
+      this.signOut();
+    }, expirationDurationMillis);
   }
 
   private handleAuthentication(respData: SignUpResponseData | SignInResponseData) {
-    const expirationDate = new Date(new Date().getTime() + parseInt(respData.expiresIn, 10) * 1000);
+    const expiresInMillis = parseInt(respData.expiresIn, 10) * 1000;
+    const expirationDate = new Date(new Date().getTime() + expiresInMillis);
     const user = new User(
       respData.email,
       respData.localId,
       respData.idToken,
       expirationDate
     );
-    localStorage.setItem('userData', JSON.stringify(user));
     this.user.next(user);
+    localStorage.setItem('userData', JSON.stringify(user));
+    this.autoSignOut(expiresInMillis);
   }
 
   private handleError(errorResp: HttpErrorResponse): Observable<never> {
