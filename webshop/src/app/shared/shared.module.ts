@@ -20,8 +20,7 @@ import {LoggingService} from '../logging.service';
     PlaceholderDirective,
     CommonModule
   ],
-  entryComponents: [AlertComponent],
-  providers: [LoggingService]
+  entryComponents: [AlertComponent]
 })
 export class SharedModule {
 }
