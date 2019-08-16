@@ -1,10 +1,13 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpErrorResponse} from '@angular/common/http';
+import {Router} from '@angular/router';
+import {Store} from '@ngrx/store';
 import {BehaviorSubject, Observable, throwError} from 'rxjs';
 import {environment} from '../../environments/environment';
 import {catchError, tap} from 'rxjs/operators';
 import {User} from './user.model';
-import {Router} from '@angular/router';
+import * as fromApp from '../store/app.reducer';
+import * as AuthActions from './store/auth.actions';
 
 export interface SignUpResponseData {
   idToken: string;
@@ -32,7 +35,8 @@ export class AuthService {
   private tokenExpirationTimer: number;
 
   constructor(private http: HttpClient,
-              private router: Router) {
+              private router: Router,
+              private store: Store<fromApp.AppState>) {
   }
 
   signUp(email: string, password: string): Observable<SignUpResponseData> {
@@ -82,14 +86,19 @@ export class AuthService {
     );
 
     if (loadedUser.token) {
-      this.user.next(loadedUser);
+      this.store.dispatch(new AuthActions.Login({
+        email: loadedUser.email,
+        userId: loadedUser.id,
+        token: loadedUser.token,
+        expirationDate
+      }));
       const expiresInMillis = new Date(expirationDate).getTime() - new Date().getTime();
       this.autoSignOut(expiresInMillis);
     }
   }
 
   signOut() {
-    this.user.next(null);
+    this.store.dispatch(new AuthActions.Logout());
     this.router.navigate(['/auth']);
     localStorage.removeItem('userData');
     if (this.tokenExpirationTimer) {
@@ -113,7 +122,12 @@ export class AuthService {
       respData.idToken,
       expirationDate
     );
-    this.user.next(user);
+    this.store.dispatch(new AuthActions.Login({
+      email: respData.email,
+      userId: respData.localId,
+      token: respData.idToken,
+      expirationDate
+    }));
     localStorage.setItem('userData', JSON.stringify(user));
     this.autoSignOut(expiresInMillis);
   }
