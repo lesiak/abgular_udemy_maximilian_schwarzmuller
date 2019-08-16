@@ -18,5 +18,7 @@ export function shoppingListReducer(state = initialState, action: ShoppingListAc
           action.payload
         ]
       };
+    default:
+      return state;
   }
 }
