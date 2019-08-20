@@ -14,12 +14,13 @@ import * as AuthActions from './store/auth.actions';
   templateUrl: './auth.component.html',
   styleUrls: ['./auth.component.css']
 })
-export class AuthComponent implements OnDestroy {
+export class AuthComponent implements OnInit, OnDestroy {
   private AuthComponentModes = AuthComponentMode;
   private mode = AuthComponentMode.Login;
   isLoading = false;
   @ViewChild(PlaceholderDirective, {static: false}) alertHost: PlaceholderDirective;
   private closeSub: Subscription;
+
 
   constructor(private authService: AuthService,
               private router: Router,
@@ -31,6 +32,15 @@ export class AuthComponent implements OnDestroy {
     this.mode = (this.mode === AuthComponentMode.Login)
       ? AuthComponentMode.SignUp
       : AuthComponentMode.Login;
+  }
+
+  ngOnInit(): void {
+    this.store.select('auth').subscribe(authState => {
+      this.isLoading = authState.loading;
+      if (authState.authError) {
+        this.showErrorAlert(authState.authError);
+      }
+    });
   }
 
   onSubmit(form: NgForm) {
@@ -47,16 +57,18 @@ export class AuthComponent implements OnDestroy {
       this.store.dispatch(new AuthActions.LoginStart({email, password}));
     }
 
-    authObs.subscribe(respData => {
-        console.log(respData);
-        this.isLoading = false;
-        this.router.navigate(['/recipes']);
-      },
-      errorMessage => {
-        console.log(errorMessage);
-        this.showErrorAlert(errorMessage);
-        this.isLoading = false;
-      });
+
+
+    // authObs.subscribe(respData => {
+    //     console.log(respData);
+    //     this.isLoading = false;
+    //     this.router.navigate(['/recipes']);
+    //   },
+    //   errorMessage => {
+    //     console.log(errorMessage);
+    //     this.showErrorAlert(errorMessage);
+    //     this.isLoading = false;
+    //   });
     form.reset();
   }
 

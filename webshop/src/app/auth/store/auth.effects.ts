@@ -1,11 +1,12 @@
 import {Actions, Effect, ofType} from '@ngrx/effects';
 import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {of} from 'rxjs';
-import {catchError, map, switchMap} from 'rxjs/operators';
+import {HttpClient, HttpErrorResponse} from '@angular/common/http';
+import {Observable, of, throwError} from 'rxjs';
+import {catchError, map, switchMap, tap} from 'rxjs/operators';
 import {environment} from '../../../environments/environment';
 import {SignInResponseData} from '../auth.service';
 import * as AuthActions from './auth.actions';
+import {Router} from '@angular/router';
 
 @Injectable()
 export class AuthEffects {
@@ -35,12 +36,41 @@ export class AuthEffects {
             expirationDate
           });
         }),
-        catchError(error => of())
+        catchError(errorResp => of(new AuthActions.LoginFail(this.getErrorMessage(errorResp))))
       );
     })
   );
 
+  @Effect({dispatch: false})
+  authSuccess = this.actions$.pipe(
+    ofType(AuthActions.LOGIN_SUCCESS),
+    tap(() => this.router.navigate(['/']))
+  );
+
   constructor(private actions$: Actions,
-              private http: HttpClient) {
+              private http: HttpClient,
+              private router: Router) {
+  }
+
+  private getErrorMessage(errorResp: HttpErrorResponse): string {
+    let errorMessage = 'An unknown error occurred';
+    if (!errorResp.error || !errorResp.error.error) {
+      return errorMessage;
+    }
+    switch (errorResp.error.error.message) {
+      case 'EMAIL_EXISTS':
+        errorMessage = 'This email already exists';
+        break;
+      case 'INVALID_EMAIL':
+        errorMessage = 'This email is invalid';
+        break;
+      case 'EMAIL_NOT_FOUND':
+        errorMessage = 'This email is not found';
+        break;
+      case 'INVALID_PASSWORD':
+        errorMessage = 'Invalid password';
+        break;
+    }
+    return errorMessage;
   }
 }
