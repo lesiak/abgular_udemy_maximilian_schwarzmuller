@@ -8,6 +8,7 @@ import {PlaceholderDirective} from '../shared/placeholder/placeholder.directive'
 import {Store} from '@ngrx/store';
 import * as fromApp from '../store/app.reducer';
 import * as AuthActions from './store/auth.actions';
+import {ClearAuthError} from './store/auth.actions';
 
 @Component({
   selector: 'app-auth',
@@ -20,7 +21,7 @@ export class AuthComponent implements OnInit, OnDestroy {
   isLoading = false;
   @ViewChild(PlaceholderDirective, {static: false}) alertHost: PlaceholderDirective;
   private closeSub: Subscription;
-
+  private storeSub: Subscription;
 
   constructor(private authService: AuthService,
               private router: Router,
@@ -35,7 +36,7 @@ export class AuthComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.store.select('auth').subscribe(authState => {
+    this.storeSub = this.store.select('auth').subscribe(authState => {
       this.isLoading = authState.loading;
       if (authState.authError) {
         this.showErrorAlert(authState.authError);
@@ -49,26 +50,10 @@ export class AuthComponent implements OnInit, OnDestroy {
     }
     const email = form.value.email;
     const password = form.value.password;
-    this.isLoading = true;
-    let authObs: Observable<SignUpResponseData | SignInResponseData>;
-    if (this.mode === AuthComponentMode.SignUp) {
-      authObs = this.authService.signUp(email, password);
-    } else {
-      this.store.dispatch(new AuthActions.LoginStart({email, password}));
-    }
-
-
-
-    // authObs.subscribe(respData => {
-    //     console.log(respData);
-    //     this.isLoading = false;
-    //     this.router.navigate(['/recipes']);
-    //   },
-    //   errorMessage => {
-    //     console.log(errorMessage);
-    //     this.showErrorAlert(errorMessage);
-    //     this.isLoading = false;
-    //   });
+    const authAction = this.mode === AuthComponentMode.SignUp
+      ? new AuthActions.SignUpStart({email, password})
+      : new AuthActions.LoginStart({email, password});
+    this.store.dispatch(authAction);
     form.reset();
   }
 
@@ -82,14 +67,20 @@ export class AuthComponent implements OnInit, OnDestroy {
       () => {
         this.closeSub.unsubscribe();
         hostViewContainerRef.clear();
+        this.handleError();
       }
     );
+  }
+
+  handleError() {
+    this.store.dispatch(new ClearAuthError());
   }
 
   ngOnDestroy(): void {
     if (this.closeSub) {
       this.closeSub.unsubscribe();
     }
+    this.storeSub.unsubscribe();
   }
 
 }

@@ -1,10 +1,10 @@
 import {Actions, Effect, ofType} from '@ngrx/effects';
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpErrorResponse} from '@angular/common/http';
-import {Observable, of, throwError} from 'rxjs';
+import {of} from 'rxjs';
 import {catchError, map, switchMap, tap} from 'rxjs/operators';
 import {environment} from '../../../environments/environment';
-import {SignInResponseData} from '../auth.service';
+import {SignInResponseData, SignUpResponseData} from '../auth.service';
 import * as AuthActions from './auth.actions';
 import {Router} from '@angular/router';
 
@@ -25,31 +25,53 @@ export class AuthEffects {
           password: authData.payload.password,
           returnSecureToken: true
         }).pipe(
-          // using inner pipe to prevent authLogin observable from dying in case of error
-        map(respData => {
-          const expiresInMillis = parseInt(respData.expiresIn, 10) * 1000;
-          const expirationDate = new Date(new Date().getTime() + expiresInMillis);
-          return new AuthActions.LoginSuccess({
-            email: respData.email,
-            userId: respData.localId,
-            token: respData.idToken,
-            expirationDate
-          });
-        }),
-        catchError(errorResp => of(new AuthActions.LoginFail(this.getErrorMessage(errorResp))))
+        // using inner pipe to prevent authLogin observable from dying in case of error
+        map(respData => this.authResponseToAuthenticateSuccessAction(respData)),
+        catchError(errorResp => of(new AuthActions.AuthenticateFail(this.getErrorMessage(errorResp))))
       );
     })
   );
 
+  @Effect()
+  authSignUp = this.actions$.pipe(
+    ofType(AuthActions.SIGNUP_START),
+    switchMap((authData: AuthActions.SignUpStart) => {
+        return this.http.post<SignUpResponseData>(
+          this.signUpUrl,
+          {
+            email: authData.payload.email,
+            password: authData.payload.password,
+            returnSecureToken: true
+          }).pipe(
+          // using inner pipe to prevent authLogin observable from dying in case of error
+          map(respData => this.authResponseToAuthenticateSuccessAction(respData)),
+          catchError(errorResp => of(new AuthActions.AuthenticateFail(this.getErrorMessage(errorResp))))
+        );
+      }
+    )
+  );
+
   @Effect({dispatch: false})
-  authSuccess = this.actions$.pipe(
-    ofType(AuthActions.LOGIN_SUCCESS),
+  authRedirect = this.actions$.pipe(
+    ofType(AuthActions.AUTHENTICATE_SUCCESS, AuthActions.LOGOUT),
     tap(() => this.router.navigate(['/']))
   );
 
   constructor(private actions$: Actions,
               private http: HttpClient,
               private router: Router) {
+  }
+
+  private authResponseToAuthenticateSuccessAction(respData: SignInResponseData | SignUpResponseData):
+    AuthActions.AuthenticateSuccess {
+    const expiresInMillis = parseInt(respData.expiresIn, 10) * 1000;
+    const expirationDate = new Date(new Date().getTime() + expiresInMillis);
+    return new AuthActions.AuthenticateSuccess({
+      email: respData.email,
+      userId: respData.localId,
+      token: respData.idToken,
+      expirationDate
+    });
   }
 
   private getErrorMessage(errorResp: HttpErrorResponse): string {
