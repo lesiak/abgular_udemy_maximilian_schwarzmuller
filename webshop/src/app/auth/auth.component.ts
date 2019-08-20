@@ -5,6 +5,9 @@ import {Observable, Subscription} from 'rxjs';
 import {Router} from '@angular/router';
 import {AlertComponent} from '../shared/alert/alert.component';
 import {PlaceholderDirective} from '../shared/placeholder/placeholder.directive';
+import {Store} from '@ngrx/store';
+import * as fromApp from '../store/app.reducer';
+import * as AuthActions from './store/auth.actions';
 
 @Component({
   selector: 'app-auth',
@@ -20,7 +23,8 @@ export class AuthComponent implements OnDestroy {
 
   constructor(private authService: AuthService,
               private router: Router,
-              private componentFactoryResolver: ComponentFactoryResolver) {
+              private componentFactoryResolver: ComponentFactoryResolver,
+              private store: Store<fromApp.AppState>) {
   }
 
   onSwitchMode() {
@@ -36,9 +40,12 @@ export class AuthComponent implements OnDestroy {
     const email = form.value.email;
     const password = form.value.password;
     this.isLoading = true;
-    const authObs: Observable<SignUpResponseData | SignInResponseData> = (this.mode === AuthComponentMode.SignUp)
-      ? this.authService.signUp(email, password)
-      : this.authService.signIn(email, password);
+    let authObs: Observable<SignUpResponseData | SignInResponseData>;
+    if (this.mode === AuthComponentMode.SignUp) {
+      authObs = this.authService.signUp(email, password);
+    } else {
+      this.store.dispatch(new AuthActions.LoginStart({email, password}));
+    }
 
     authObs.subscribe(respData => {
         console.log(respData);
