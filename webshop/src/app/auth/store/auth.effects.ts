@@ -7,6 +7,7 @@ import {environment} from '../../../environments/environment';
 import {SignInResponseData, SignUpResponseData} from '../auth.service';
 import * as AuthActions from './auth.actions';
 import {Router} from '@angular/router';
+import {User} from '../user.model';
 
 @Injectable()
 export class AuthEffects {
@@ -57,6 +58,45 @@ export class AuthEffects {
     tap(() => this.router.navigate(['/']))
   );
 
+  @Effect()
+  autoLogin = this.actions$.pipe(
+    ofType(AuthActions.AUTO_LOGIN),
+    map(() => {
+      const userData: {
+        email: string,
+        id: string,
+        _token: string,
+        _tokenExpirationDate: string
+      } = JSON.parse(localStorage.getItem('userData'));
+      if (!userData) {
+        return {type: 'IgnoreAction'};
+      }
+      const expirationDate = new Date(userData._tokenExpirationDate);
+      const loadedUser = new User(
+        userData.email,
+        userData.id,
+        userData._token,
+        expirationDate
+      );
+
+      if (loadedUser.token) {
+        return new AuthActions.AuthenticateSuccess({
+          email: loadedUser.email,
+          userId: loadedUser.id,
+          token: loadedUser.token,
+          expirationDate
+        });
+      }
+      return {type: 'IgnoreAction'};
+    })
+  );
+
+  @Effect({dispatch: false})
+  authLogout = this.actions$.pipe(
+    ofType(AuthActions.LOGOUT),
+    tap(() => localStorage.removeItem('userData'))
+  );
+
   constructor(private actions$: Actions,
               private http: HttpClient,
               private router: Router) {
@@ -66,6 +106,8 @@ export class AuthEffects {
     AuthActions.AuthenticateSuccess {
     const expiresInMillis = parseInt(respData.expiresIn, 10) * 1000;
     const expirationDate = new Date(new Date().getTime() + expiresInMillis);
+    const user = new User(respData.email, respData.localId, respData.idToken, expirationDate);
+    localStorage.setItem('userData', JSON.stringify(user));
     return new AuthActions.AuthenticateSuccess({
       email: respData.email,
       userId: respData.localId,
