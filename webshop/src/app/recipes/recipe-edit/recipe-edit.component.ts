@@ -1,10 +1,12 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Params, Router} from '@angular/router';
 import {FormArray, FormControl, FormGroup, Validators} from '@angular/forms';
 import {Store} from '@ngrx/store';
+import {map} from 'rxjs/operators';
 import {RecipeService} from '../recipe.service';
 import * as fromApp from '../../store/app.reducer';
-import {map} from 'rxjs/operators';
+import * as RecipeActions from '../store/recipe.actions';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-recipe-edit',
@@ -12,11 +14,12 @@ import {map} from 'rxjs/operators';
   styleUrls: ['./recipe-edit.component.css'],
   preserveWhitespaces: true
 })
-export class RecipeEditComponent implements OnInit {
+export class RecipeEditComponent implements OnInit, OnDestroy {
 
   id: number;
   editMode = false;
   recipeForm: FormGroup;
+  private storeSub: Subscription;
 
   constructor(private router: Router,
               private route: ActivatedRoute,
@@ -40,7 +43,7 @@ export class RecipeEditComponent implements OnInit {
     let recipeDescription = '';
     const recipeIngredients = new FormArray([]);
     if (this.editMode) {
-      this.store.select('recipes').pipe(
+      this.storeSub = this.store.select('recipes').pipe(
         map(recipeState => recipeState.recipes[this.id])
       ).subscribe(recipe => {
         recipeName = recipe.name;
@@ -85,9 +88,12 @@ export class RecipeEditComponent implements OnInit {
     const newRecipe = this.recipeForm.value;
     console.log(newRecipe);
     if (this.editMode) {
-      this.recipeService.updateRecipe(this.id, newRecipe);
+      this.store.dispatch(new RecipeActions.UpdateRecipe({
+        index: this.id,
+        newRecipe
+      }));
     } else {
-      this.recipeService.addRecipe(newRecipe);
+      this.store.dispatch(new RecipeActions.AddRecipe(newRecipe));
     }
     this.onCancel();
   }
@@ -102,6 +108,12 @@ export class RecipeEditComponent implements OnInit {
 
   get ingredientControls() {
     return this.ingredientsFormArray.controls;
+  }
+
+  ngOnDestroy(): void {
+    if (this.storeSub) {
+      this.storeSub.unsubscribe();
+    }
   }
 
 }
