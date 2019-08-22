@@ -2,11 +2,10 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Params, Router} from '@angular/router';
 import {FormArray, FormControl, FormGroup, Validators} from '@angular/forms';
 import {Store} from '@ngrx/store';
+import {Subscription} from 'rxjs';
 import {map} from 'rxjs/operators';
-import {RecipeService} from '../recipe.service';
 import * as fromApp from '../../store/app.reducer';
 import * as RecipeActions from '../store/recipe.actions';
-import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-recipe-edit',
@@ -23,7 +22,6 @@ export class RecipeEditComponent implements OnInit, OnDestroy {
 
   constructor(private router: Router,
               private route: ActivatedRoute,
-              private recipeService: RecipeService,
               private store: Store<fromApp.AppState>) {
   }
 
