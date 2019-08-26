@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {animate, keyframes, state, style, transition, trigger} from '@angular/animations';
+import {animate, group, keyframes, state, style, transition, trigger} from '@angular/animations';
 
 @Component({
   selector: 'app-root',
@@ -96,12 +96,16 @@ import {animate, keyframes, state, style, transition, trigger} from '@angular/an
         ]
       ),
       transition('* => void', [
+        group([
           animate(300, style({
-            opacity: 0,
-            transform: 'translateX(100px)'
+            color: 'red'
+          })),
+          animate(800, style({
+            transform: 'translateX(100px)',
+            opacity: 0
           }))
-        ]
-      )
+        ])
+      ])
     ])
   ]
 })
