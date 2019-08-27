@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 // import { HttpEvent, HttpEventType } from '@angular/common/http';
 import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 
 import * as fromApp from '../../store/app.reducers';
 import * as fromAuth from '../../auth/store/auth.reducers';
